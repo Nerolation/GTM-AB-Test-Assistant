@@ -1,0 +1,40 @@
+// Load requirements
+const log = require('logToConsole');
+const set_cookie = require('setCookie');
+const localStorage = require('localStorage');
+const get_cookie = require('getCookieValues');
+const generateRandom = require('generateRandom');
+const createQueue = require('createQueue');
+const makeString = require('makeString');
+
+if(data.storage === 1) {
+  var abconf = get_cookie("abconf")[0]||undefined;
+  if(!abconf) {
+    const options = {
+        domain: "auto",
+        'max-age': data.cookietime*60*60*24,
+        path: "/",
+        samesite:'lax',
+        secure:true
+      };
+    var randInt = generateRandom(1,2);
+    set_cookie("abconf", makeString(randInt), options); 
+  }
+  else {
+    var randInt = makeString(abconf);
+  }
+} else {
+    if(localStorage) {
+        if (!localStorage.getItem("abconf")) {
+          var randInt = generateRandom(1,2);
+          localStorage.setItem("abconf", makeString(randInt));
+        } else {
+          var randInt = makeString(localStorage.getItem("abconf"));
+        }
+    }
+}
+if (randInt) {
+  const dataLayerPush = createQueue('dataLayer');
+  dataLayerPush({'ab': makeString(randInt), 'event': 'abtest'});
+}
+data.gtmOnSuccess();
